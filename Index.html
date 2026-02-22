@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palette Pro | Curated Color Schemes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-main: #2d3436;
+            --card-radius: 16px;
+            --shadow-sm: 0 4px 6px rgba(0,0,0,0.05);
+            --shadow-hover: 0 10px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: #636e72;
+            font-size: 1.1rem;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Row Layout */
+        .palette-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Stagger animations */
+        .palette-row:nth-child(1) { animation-delay: 0.1s; }
+        .palette-row:nth-child(2) { animation-delay: 0.2s; }
+        .palette-row:nth-child(3) { animation-delay: 0.3s; }
+        .palette-row:nth-child(4) { animation-delay: 0.4s; }
+        .palette-row:nth-child(5) { animation-delay: 0.5s; }
+        .palette-row:nth-child(6) { animation-delay: 0.6s; }
+        .palette-row:nth-child(7) { animation-delay: 0.7s; }
+        .palette-row:nth-child(8) { animation-delay: 0.8s; }
+
+        /* Color Group Container */
+        .colors-wrapper {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Individual Color Card */
+        .color-card {
+            width: 80px;
+            height: 120px;
+            border-radius: var(--card-radius);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 15px;
+            transition: var(--transition);
+            cursor: default;
+            border: 1px solid rgba(0,0,0,0.05); /* For white cards */
+        }
+
+        .color-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            z-index: 2;
+        }
+
+        /* Hex Text */
+        .hex-code {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+            color: inherit; /* Inherits from parent text color logic */
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Row Title */
+        .row-title {
+            flex: 0 0 200px; /* Fixed width for alignment */
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            border-left: 4px solid #dfe6e9;
+            padding-left: 15px;
+            line-height: 1.4;
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 1rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .palette-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .row-title {
+                text-align: center;
+                border-left: none;
+                border-bottom: 4px solid #dfe6e9;
+                padding-left: 0;
+                padding-bottom: 10px;
+                flex: auto;
+                order: -1; /* Move title to top on mobile */
+            }
+
+            .colors-wrapper {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Palette Pro</h1>
+        <p class="subtitle">Curated color combinations for your next project</p>
+    </header>
+
+    <div class="container" id="palette-container">
+        <!-- Rows will be injected here by JavaScript -->
+    </div>
+
+    <div id="toast">Color copied to clipboard!</div>
+
+    <script>
+        // Data Structure: 9 Rows
+        // Each row has a title and 4 specific colors. 
+        // White (#FFFFFF) and Dark Grey (#333333) are added programmatically.
+        const palettes = [
+            {
+                title: "Corporate & Tech",
+                colors: ["#0F4C75", "#6C5CE7", "#3282B8", "#0984E3"]
+            },
+            {
+                title: "Organic & Nature",
+                colors: ["#2D6A4F", "#40916C", "#95D5B2", "#D8F3DC"]
+            },
+            {
+                title: "Sunset & Warmth",
+                colors: ["#FF5252", "#FF8A65", "#FFCA28", "#FFEE58"],
+                baseColors: ["#FFFFFF", "#4E342E"]
+            },
+            {
+                title: "Coffee & Cafe",
+                colors: ["#6F4E37", "#A67B5B", "#ECB176", "#FED8B1"]
+            },
+            {
+                title: "Modern Luxury",
+                colors: ["#D4AF37", "#1A1A1A", "#F4F4F4", "#C5A028"]
+            },
+            {
+                title: "Health & Wellness",
+                colors: ["#0288D1", "#4FC3F7", "#81D4FA", "#E1F5FE"]
+            },
+            {
+                title: "Minimalist Portfolio",
+                colors: ["#B2BEC3", "#636E72", "#DFE6E9", "#2D3436"]
+            },
+            {
+                title: "Playful & Kids",
+                colors: ["#FF6B6B", "#4ECDC4", "#FFE66D", "#FF9F43"]
+            },
+        ];
+
+        const container = document.getElementById('palette-container');
+        const toast = document.getElementById('toast');
+
+        // Helper: Determine if text should be black or white based on background luminance
+        function getContrastColor(hex) {
+            // Remove hash if present
+            hex = hex.replace('#', '');
+            
+            // Parse r, g, b
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            
+            // Calculate YIQ ratio
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            
+            // Return black for bright colors, white for dark colors
+            return (yiq >= 128) ? '#2d3436' : '#ffffff';
+        }
+
+        // Helper: Copy to clipboard
+        function copyToClipboard(hex) {
+            navigator.clipboard.writeText(hex).then(() => {
+                showToast(`Copied ${hex}`);
+            });
+        }
+
+        // Helper: Show Toast
+        function showToast(message) {
+            toast.textContent = message;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        // Render Logic
+        palettes.forEach(palette => {
+            // Construct the full 6-color array
+            const baseColors = palette.baseColors || ["#FFFFFF", "#333333"];
+            const fullColors = [...palette.colors, ...baseColors];
+
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'palette-row';
+
+            // 1. Create Colors Wrapper
+            const colorsWrapper = document.createElement('div');
+            colorsWrapper.className = 'colors-wrapper';
+
+            fullColors.forEach(color => {
+                const card = document.createElement('div');
+                card.className = 'color-card';
+                card.style.backgroundColor = color;
+                
+                // Calculate text color for contrast
+                const textColor = getContrastColor(color);
+                card.style.color = textColor;
+
+                // Hex Text
+                const hexSpan = document.createElement('span');
+                hexSpan.className = 'hex-code';
+                hexSpan.innerText = color;
+
+                // Copy Button
+                const btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                btn.innerText = 'Copy';
+                
+                // Specific styling for button based on contrast
+                if(textColor === '#ffffff') {
+                    btn.style.borderColor = 'rgba(255,255,255,0.5)';
+                    btn.style.background = 'rgba(255,255,255,0.1)';
+                } else {
+                    btn.style.borderColor = 'rgba(0,0,0,0.2)';
+                    btn.style.background = 'rgba(0,0,0,0.05)';
+                }
+
+                btn.onclick = () => copyToClipboard(color);
+
+                card.appendChild(hexSpan);
+                card.appendChild(btn);
+                colorsWrapper.appendChild(card);
+            });
+
+            // 2. Create Title
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'row-title';
+            titleDiv.innerText = palette.title;
+
+            // Append to Row (Colors Left, Title Right)
+            rowDiv.appendChild(colorsWrapper);
+            rowDiv.appendChild(titleDiv);
+
+            // Append Row to Container
+            container.appendChild(rowDiv);
+        });
+    </script>
+</body>
+</html>
